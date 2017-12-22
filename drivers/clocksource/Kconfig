@@ -1,0 +1,67 @@
+config AMBA_SP804
+	bool
+	depends on ARM_AMBA
+
+config ARM_SMP_TWD
+	bool
+	depends on ARM && CPU_V7
+
+config CLOCKSOURCE_BCM283X
+	bool
+	depends on ARCH_BCM283X
+
+config CLOCKSOURCE_CLPS711X
+	bool
+	depends on ARCH_CLPS711X
+
+config CLOCKSOURCE_DIGIC
+	bool
+	depends on ARCH_DIGIC
+
+config CLOCKSOURCE_DUMMY_RATE
+	int
+	prompt "dummy clocksource rate"
+	default 1000
+	help
+	  When porting barebox to a new SoC there might be a case
+	  of broken or absent clocksource. This causes barebox serial
+	  console to be non functional.
+	  To solve the problem barebox has built-in software-only clocksource.
+	  The software-only clocksource is used only if no hardware clocksource
+	  is registered. This can help if initialization order is wrong so that
+	  the time functions are used before the real clocksource was initialized.
+	      WARNING!!! Built-in software-only clocksource doesn't provide correct timing.
+	  The option CONFIG_CLOCKSOURCE_DUMMY_RATE is used to adjust this clocksource.
+	  The bigger rate valuest makes clocksource "faster".
+
+config CLOCKSOURCE_EFI
+	bool "Generic EFI Driver"
+	depends on EFI_BOOTUP
+
+config CLOCKSOURCE_EFI_X86
+	bool "EFI X86 HW driver"
+	depends on EFI_BOOTUP && X86
+
+config CLOCKSOURCE_MVEBU
+	bool
+	depends on ARCH_MVEBU
+
+config CLOCKSOURCE_NOMADIK
+	bool
+	depends on ARM
+
+config CLOCKSOURCE_ORION
+	bool
+	depends on ARCH_MVEBU
+
+config CLOCKSOURCE_UEMD
+	bool
+	depends on ARCH_UEMD
+
+config CLOCKSOURCE_ROCKCHIP
+	bool
+	depends on ARCH_ROCKCHIP
+
+config CLOCKSOURCE_ATMEL_PIT
+       bool
+       depends on SOC_AT91SAM9 || SOC_SAMA5

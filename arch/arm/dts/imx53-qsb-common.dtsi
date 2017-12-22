@@ -1,0 +1,54 @@
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/ {
+	chosen {
+		stdout-path = &uart1;
+
+		environment@0 {
+			compatible = "barebox,environment";
+			device-path = &bareboxenv;
+		};
+	};
+
+	/*
+	 * The buttons are marked as active high in the upstream dts.
+	 * Remove these once fixed upstream.
+	 */
+	gpio-keys {
+		power {
+			gpios = <&gpio1 8 GPIO_ACTIVE_LOW>;
+		};
+
+		volume-up {
+			gpios = <&gpio2 14 GPIO_ACTIVE_LOW>;
+		};
+
+		volume-down {
+			gpios = <&gpio2 15 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&esdhc1 {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	bareboxenv: partition@e0000 {
+		label = "barebox-environment";
+		reg = <0xe0000 0x20000>;
+	};
+};
+
+&iim {
+	barebox,provide-mac-address = <&fec 1 9>;
+};

@@ -1,0 +1,14 @@
+obj-$(CONFIG_MCI)		+= mci-core.o
+obj-$(CONFIG_MCI_ATMEL)		+= atmel_mci.o
+obj-$(CONFIG_MCI_BCM283X)	+= mci-bcm2835.o
+obj-$(CONFIG_MCI_DOVE)		+= dove-sdhci.o
+obj-$(CONFIG_MCI_IMX)		+= imx.o
+obj-$(CONFIG_MCI_IMX_ESDHC)	+= imx-esdhc.o
+obj-$(CONFIG_MCI_MXS)		+= mxs.o
+obj-$(CONFIG_MCI_OMAP_HSMMC)	+= omap_hsmmc.o
+obj-$(CONFIG_MCI_PXA)		+= pxamci.o
+obj-$(CONFIG_MCI_S3C)		+= s3c.o
+obj-$(CONFIG_MCI_TEGRA)		+= tegra-sdmmc.o
+obj-$(CONFIG_MCI_SPI)		+= mci_spi.o
+obj-$(CONFIG_MCI_DW)		+= dw_mmc.o
+obj-$(CONFIG_MCI_MMCI)		+= mmci.o

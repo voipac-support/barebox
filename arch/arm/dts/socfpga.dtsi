@@ -1,0 +1,32 @@
+/ {
+	chosen {
+		environment@0 {
+			compatible = "barebox,environment";
+			device-path = &mmc, "partname:1";
+			file-path = "barebox.env";
+		};
+	};
+
+	aliases {
+		mmc0 = &mmc;
+	};
+};
+&osc2 {
+	clock-frequency = <0>;
+};
+
+&f2s_periph_ref_clk {
+	clock-frequency = <0>;
+};
+
+&f2s_sdram_ref_clk {
+	clock-frequency = <0>;
+};
+
+&watchdog0 {
+	resets = <&rst L4WD0_RESET>;
+};
+
+&watchdog1 {
+	resets = <&rst L4WD1_RESET>;
+};

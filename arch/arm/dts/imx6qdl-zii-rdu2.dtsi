@@ -1,0 +1,159 @@
+/*
+ * Copyright (C) 2016-2017 Zodiac Inflight Innovations
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This file is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License
+ *     version 2 as published by the Free Software Foundation.
+ *
+ *     This file is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED , WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#include <arm/imx6qdl-zii-rdu2.dtsi>
+
+/ {
+	chosen {
+		environment@0 {
+			compatible = "barebox,environment";
+			device-path = &nor_flash, "partname:barebox-environment";
+		};
+	};
+
+	aliases {
+		ethernet0 = &fec;
+		ethernet1 = &i210;
+	};
+};
+
+&uart4 {
+	pic {
+		compatible = "zii,pic-rdu2";
+		current-speed = <1000000>;
+		status = "okay";
+
+		main_eeprom {
+			compatible = "zii,pic-main-eeprom";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			status = "okay";
+
+			boot_source: boot-source@83 {
+				reg = <0x83 1>;
+			};
+			max_failed_boots: max-failed-boots@8E {
+				reg = <0x8E 2>;
+			};
+		};
+
+		dds_eeprom {
+			compatible = "zii,pic-dds-eeprom";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			status = "okay";
+		};
+
+		watchdog {
+			compatible = "zii,pic-watchdog";
+			status = "okay";
+		};
+
+		hwmon {
+			compatible = "zii,pic-hwmon";
+			sensors = "RMB_3V3_PMIC",
+				  "RMB_3V3_MCU",
+				  "RMB_5V_MAIN",
+				  "RMB_12V_MAIN",
+				  "RMB_28V_FIL",
+				  "RMB_28V_HOTSWAP",
+				  "DEB_1V8",
+				  "DEB_3V3",
+				  "DEB_28V_DEB",
+				  "DEB_28V_RDU",
+				  "TEMPERATURE",
+				  "TEMPERATURE_2",
+				  "RMB_28V_CURRENT";
+			status = "okay";
+		};
+
+		backlight {
+			compatible = "zii,pic-backlight";
+			status = "okay";
+		};
+
+		leds {
+			compatible = "zii,pic-leds";
+			status = "okay";
+		};
+
+		pwrbutton {
+			compatible = "zii,pic-pwrbutton";
+			status = "okay";
+		};
+	};
+};
+
+&ecspi1 {
+	nor_flash: flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		partition@0 {
+			label = "barebox";
+			reg = <0x0 0xc0000>;
+		};
+
+		partition@c0000 {
+			label = "barebox-environment";
+			reg = <0xc0000 0x40000>;
+		};
+	};
+};
+
+&i2c2 {
+	temp-sense@48 {
+		barebox,sensor-name = "Temp Sensor 1";
+	};
+};
+
+&pcie {
+	host@0 {
+		#address-cells = <3>;
+		#size-cells = <2>;
+		reg = <0 0 0 0 0>;
+		device_type = "pci";
+
+		i210: i210@0 {
+			reg = <0 0 0 0 0>;
+		};
+	};
+};

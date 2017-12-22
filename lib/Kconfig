@@ -1,0 +1,113 @@
+menu "Library routines"
+config PARAMETER
+	bool
+
+config UNCOMPRESS
+	bool
+	select FILETYPE
+
+config ZLIB
+	bool "include gzip uncompression support"
+	select UNCOMPRESS
+
+config BZLIB
+	bool "include bzip2 uncompression support"
+	select UNCOMPRESS
+
+config LZ4_DECOMPRESS
+	bool "include lz4 uncompression support"
+	select UNCOMPRESS
+
+config XZ_DECOMPRESS
+	bool "include xz uncompression support"
+	select UNCOMPRESS
+	select XZ_DEC_X86
+	select XZ_DEC_POWERPC
+	select XZ_DEC_IA64
+	select XZ_DEC_ARM
+	select XZ_DEC_ARMTHUMB
+	select XZ_DEC_SPARC
+
+config XZ_DEC_X86
+        bool
+
+config XZ_DEC_POWERPC
+        bool
+
+config XZ_DEC_IA64
+        bool
+
+config XZ_DEC_ARM
+        bool
+
+config XZ_DEC_ARMTHUMB
+        bool
+
+config XZ_DEC_SPARC
+        bool
+
+config REED_SOLOMON
+	bool
+
+config GENERIC_FIND_NEXT_BIT
+	def_bool n
+
+config PROCESS_ESCAPE_SEQUENCE
+	def_bool n
+
+source lib/lzo/Kconfig
+
+config BCH
+	bool
+
+config BITREV
+	bool
+
+config FNMATCH
+	bool
+
+config QSORT
+	bool
+
+config XYMODEM
+	bool
+	select CRC16
+
+config LIBSCAN
+	bool
+
+config LIBUBIGEN
+	bool
+
+config STMP_DEVICE
+	bool
+
+config RATP
+	select CRC16
+	bool
+	help
+	  Reliable Asynchronous Transfer Protocol (RATP) is a protocol for reliably
+	  transferring packets over serial links described in RFC916. This implementation
+	  is used for controlling barebox over serial ports.
+
+config ALLOW_PRNG_FALLBACK
+	bool "Allow fallback to PRNG if HWRNG not available."
+	help
+	  WARNING: it is not secure!!
+
+	  get_crypto_bytes() users like cmd_password relay on HWRNG. If HWRNG is not
+	  available and this option is disabled, cmd_password will fail.
+	  Enable it on your own risk.
+
+source lib/gui/Kconfig
+
+source lib/fonts/Kconfig
+
+source lib/logo/Kconfig
+
+source lib/bootstrap/Kconfig
+
+config PRINTF_UUID
+	bool
+
+endmenu

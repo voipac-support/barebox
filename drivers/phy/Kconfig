@@ -1,0 +1,25 @@
+#
+# PHY
+#
+
+menuconfig GENERIC_PHY
+	bool "PHY Core"
+	help
+	  Generic PHY support.
+
+	  This framework is designed to provide a generic interface for PHY
+	  devices present in the kernel. This layer will have the generic
+	  API by which phy drivers can create PHY using the phy framework and
+	  phy users can obtain reference to the PHY. All the users of this
+	  framework should select this config.
+
+if GENERIC_PHY
+
+config USB_NOP_XCEIV
+	bool "Generic USB nop phy"
+	help
+	  This driver is to be used by all the usb transceiver which are either
+	  built-in with usb ip or which are autonomous and doesn't require any
+	  phy programming such as ISP1x04 etc.
+
+endif

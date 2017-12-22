@@ -1,0 +1,62 @@
+menuconfig USB_GADGET
+	select USB
+	select POLLER
+	bool "USB gadget support"
+
+if USB_GADGET
+
+config USB_GADGET_DUALSPEED
+	bool
+
+config USB_GADGET_DRIVER_ARC
+	bool
+	prompt "Arc OTG device core"
+	depends on ARCH_IMX || ARCH_MXS
+	default y
+	select USB_GADGET_DUALSPEED
+
+config USB_GADGET_DRIVER_AT91
+	bool
+	prompt "at91 gadget driver"
+	depends on ARCH_AT91
+	depends on !ARCH_SAMA5D4
+	default y
+	select USB_GADGET_DUALSPEED
+
+config USB_GADGET_DRIVER_PXA27X
+	bool
+	prompt "PXA27x gadget driver"
+	depends on ARCH_PXA27X
+	default y
+	select USB_GADGET_DUALSPEED
+
+config USB_GADGET_AUTOSTART
+	bool
+	default y
+	select ENVIRONMENT_VARIABLES
+	select FILE_LIST
+	prompt "Automatically start usbgadget on boot"
+	help
+	  Enabling this option allows to automatically start a fastboot
+	  gadget during boot. This behaviour is controlled with the
+	  global.usbgadget.fastboot_function variable.
+
+comment "USB Gadget drivers"
+
+config USB_GADGET_DFU
+	bool
+	select FILE_LIST
+	prompt "Device Firmware Update Gadget"
+
+config USB_GADGET_SERIAL
+	bool
+	depends on !CONSOLE_NONE
+	prompt "Serial Gadget"
+
+config USB_GADGET_FASTBOOT
+	bool
+	select BANNER
+	select FILE_LIST
+	prompt "Android Fastboot support"
+
+endif
