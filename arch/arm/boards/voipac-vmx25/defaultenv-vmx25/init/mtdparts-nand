@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# NAND flash partitioning
+
+if [ -e /env/config ]; then
+	source /env/config
+fi
+
+#Settings
+mtdparts="512k(nand0.barebox),512k(nand0.environment),4M(nand0.kernel),-(nand0.rootfs)"
+kernelname="mxc_nand"
+
+mtdparts-add -b -d nand0 -k ${kernelname} -p ${mtdparts}

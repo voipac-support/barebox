@@ -49,6 +49,10 @@ pblx-$(CONFIG_MACH_PCM038) += start_phytec_phycore_imx27
 FILE_barebox-phytec-phycore-imx27.img = start_phytec_phycore_imx27.pblx
 image-$(CONFIG_MACH_PCM038) += barebox-phytec-phycore-imx27.img
 
+pblx-$(CONFIG_MACH_VMX25) += start_imx25_voipac_vmx25
+FILE_barebox-voipac-vmx25.img = start_imx25_voipac_vmx25.pblx
+image-$(CONFIG_MACH_VMX25) += barebox-voipac-vmx25.img
+
 # ----------------------- i.MX50 based boards ---------------------------
 pblx-$(CONFIG_MACH_KINDLE_MX50) += start_imx50_kindle_d01100
 CFG_start_imx50_kindle_d01100.pblx.imximg = $(board)/kindle-mx50/flash-header-kindle-lpddr1.imxcfg

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Force MAC address settings
+
+if [ -e /env/config ]; then
+	source /env/config
+fi
+
+#Settings
+interface=eth0
+
+if [ -e /env/network/${interface} ]; then
+	source /env/network/${interface}
+fi
+
+if [ -z $ethaddr ]; then
+	while [ -z $ethaddr ]; do
+		readline "No MAC address set for eth0. Please enter the one found on your module: " ethaddr
+	done
+	echo -a /env/network/${interface} "ethaddr=$ethaddr"
+	saveenv
+fi
+
+${interface}.ethaddr=$ethaddr

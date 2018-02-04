@@ -40,6 +40,7 @@ config ARCH_TEXT_BASE
 	default 0x4fc00000 if MACH_VARISCITE_MX6
 	default 0x4fc00000 if MACH_PHYTEC_SOM_IMX6
 	default 0x9fc00000 if MACH_WARP7
+	default 0x81f00000 if MACH_VMX25
 
 config ARCH_IMX_IMXIMAGE
 	bool
@@ -193,6 +194,14 @@ config MACH_TX25
 	select ARCH_IMX_EXTERNAL_BOOT_NAND
 	help
 	  Say Y here if you are using the Ka-Ro tx25 board
+
+config MACH_VMX25
+	bool "Voipac VMX25"
+	select ARCH_IMX25
+	select ARCH_IMX_EXTERNAL_BOOT_NAND
+	help
+	  Say Y here if you are using the Voipac Technologies VMX25 module
+	  equipped with a Freescale i.MX25 Processor
 
 config MACH_PCA100
 	bool "phyCard-i.MX27"

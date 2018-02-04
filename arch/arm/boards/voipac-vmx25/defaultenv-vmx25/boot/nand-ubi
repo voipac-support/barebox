@@ -1,0 +1,14 @@
+#!/bin/sh
+
+exit 0
+
+# Boot from NAND (UBI)
+
+if [ -e /env/config ]; then
+	source /env/config
+fi
+
+global.bootm.image="/dev/nand0.kernel.bb"
+#oftree -f
+#global.bootm.oftree="/env/dtb/${global.vmx.kernel}/${global.vmx.dtb}"
+global.linux.bootargs.dyn.root="root=ubi0:rootfs ubi.mtd=nand0.rootfs rootfstype=ubifs"

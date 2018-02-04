@@ -1,0 +1,33 @@
+#!/bin/sh
+
+exit 0
+
+# Boot from TFTP/NFS
+
+if [ -e /env/config ]; then
+	source /env/config
+fi
+
+#Settings
+tftppath=vmx25
+netdtb=${global.vmx.dtb}
+netkernel=${global.vmx.kernel}
+
+dhcp
+eth0.serverip=192.168.0.1
+
+global.bootm.image
+
+tftp ${tftppath}/${netdtb}
+tftp ${tftppath}/${netkernel}
+
+if [ -e "${netdtb}" ]; then
+	oftree -f
+	oftree -l "${netdtb}"
+fi
+global.bootm.image=${netkernel}
+
+nfsroot="${eth0.serverip}:/srv/nfs/rootfs-bb-1-22-vmx25,nolock"
+
+bootargs-ip
+global.linux.bootargs.dyn.root="root=/dev/nfs nfsroot=$nfsroot,v3,tcp"

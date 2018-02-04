@@ -1,0 +1,18 @@
+#!/bin/sh
+
+exit 0
+
+# Load correct dtb file
+
+if [ -e /env/config ]; then
+	/env/config
+fi
+
+#Settings
+dtb=/env/dtb/${global.vmx.kernel}/${global.vmx.dtb}
+
+if [ -e ${dtb} ]; then
+	oftree -f
+	oftree -l ${dtb}
+	echo "DTB: ${dtb}"
+fi
