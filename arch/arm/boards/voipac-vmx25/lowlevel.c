@@ -105,7 +105,7 @@ static inline void __bare_init setup_sdram_rows(uint32_t base,
 	writel(esdctl, esdctlreg);
 }
 
-static inline void __bare_init setup_sdram(uint32_t base, uint32_t esdctl,
+static void __bare_init setup_sdram(uint32_t base, uint32_t esdctl,
 		uint32_t esdcfg)
 {
 	uint32_t esdctlreg = MX25_ESDCTL_BASE_ADDR + IMX_ESDCTL0;
@@ -128,22 +128,14 @@ static inline void __bare_init setup_sdram(uint32_t base, uint32_t esdctl,
 	writeb(0, base + 0x33);
 	writel(esdctl, esdctlreg);
 
-	{
-		uint32_t pattern1;
-		uint32_t pattern2;
-	
-		writel(SDRAM_TEST_PATTERN1, base+0);
-		pattern1 = readl(base+0);
-		writel(SDRAM_TEST_PATTERN2, base+4);
-		pattern2 = readl(base+4);
-
-		if ((SDRAM_TEST_PATTERN1 == pattern1) &&
-			(SDRAM_TEST_PATTERN2 == pattern2)) {
-			setup_sdram_columns(base, esdctlreg);
-			setup_sdram_rows(base, esdctlreg);
-		} else {
-			setup_sdram_disable(esdctlreg, esdcfgreg);
-		}
+	writel(SDRAM_TEST_PATTERN1, base+0);
+	writel(SDRAM_TEST_PATTERN2, base+4);
+	if ((SDRAM_TEST_PATTERN1 == readl(base+0)) &&
+	    (SDRAM_TEST_PATTERN2 == readl(base+4))) {
+		setup_sdram_columns(base, esdctlreg);
+		setup_sdram_rows(base, esdctlreg);
+	} else {
+		setup_sdram_disable(esdctlreg, esdcfgreg);
 	}
 }
 
