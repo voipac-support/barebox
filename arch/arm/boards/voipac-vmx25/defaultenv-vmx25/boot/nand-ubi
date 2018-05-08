@@ -1,7 +1,5 @@
 #!/bin/sh
 
-exit 0
-
 # Boot from NAND (UBI)
 
 if [ -e /env/config ]; then

@@ -12,7 +12,6 @@ global vmx.dtb
 global.vmx.model=254
 global.vmx.kernelno=4.14
 global.vmx.dtb=imx25-voipac-vmx25-${global.vmx.model}-${global.vmx.kernelno}.dtb
-global.vmx.kernel=zImage-imx25-vmx25-${global.vmx.model}-${global.vmx.kernelno}.bin
 
 global.hostname=vmx25
 global.linux.bootargs.base="console=ttymxc0,115200"
