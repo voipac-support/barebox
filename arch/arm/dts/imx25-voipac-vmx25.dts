@@ -1,6 +1,5 @@
 /*
- * Copyright 2012 Sascha Hauer, Pengutronix
- * Copyright 2014-2017 Voipac <support@voipac.com>
+ * Copyright (C) 2014-2018 Voipac.
  *
  * The code contained herein is licensed under the GNU General Public
  * License. You may obtain a copy of the GNU General Public License
@@ -11,6 +10,9 @@
  */
 
 /dts-v1/;
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include "imx25.dtsi"
 
 / {
@@ -18,33 +20,63 @@
 	compatible = "voipac,imx25-vmx25", "fsl,imx25";
 
 	chosen {
-		linux,stdout-path = &uart1;
+		stdout-path = &uart1;
+	};
 
-		environment@0 {
-			compatible = "barebox,environment";
-			device-path = &nfc, "partname:environment";
+	clocks {
+		clk_16M: can_clock {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <16000000>;
+		};
+
+		clk_12288k: codec_clock {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <12288000>;
 		};
 	};
 
-//	memory {
-//		reg = <0x80000000 0x02000000 0x90000000 0x02000000>;
-//	};
-
+	display: display {
+		model = "DVI-SVGA";
+		bits-per-pixel = <16>;
+		fsl,pcr = <0xfac08b80>;
+		bus-width = <18>;
+		native-mode = <&dvi_svga_timings>;
+		display-timings {
+			dvi_svga_timings: 800x600 {
+				clock-frequency = <34000000>;
+				hactive = <800>;
+				vactive = <600>;
+				hback-porch = <57>;
+				hfront-porch = <21>;
+				vback-porch = <10>;
+				vfront-porch = <1>;
+				hsync-len = <20>;
+				vsync-len = <2>;
+			};
+		};
+	};
+/*
+	memory {
+		reg = <0x80000000 0x02000000 0x90000000 0x02000000>;
+	};
+*/
 	leds {
 		compatible = "gpio-leds";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_led>;
 
-		red {
-			label = "led-red";
-			gpios = <&gpio2 4 0>;
+		led1 {
+			label = "led1";
+			gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>;
 			linux,default-trigger = "heartbeat";
 		};
 
-		orange {
-			label = "led-orange";
-			gpios = <&gpio2 5 0>;
-			linux,default-trigger = "panic";
+		led2 {
+			label = "led2";
+			gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "default-on";
 		};
 	};
 
@@ -53,86 +85,179 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		reg_dcdc1: regulator@0 {
+		reg_dummy: dummy-3v3 {
 			compatible = "regulator-fixed";
-			regulator-name = "3v3";
+			regulator-name = "dummy-3v3";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			regulator-boot-on;
 			regulator-always-on;
 		};
 
-		reg_dcdc2: regulator@1 {
+		reg_tps65053_l1: tps65053-3v3 {
 			compatible = "regulator-fixed";
-			regulator-name = "qvdd";
+			regulator-name = "module-3v3-vio";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-boot-on;
+			regulator-always-on;
+		};
+
+		reg_tps65053_l2: tps65053-qvdd {
+			compatible = "regulator-fixed";
+			regulator-name = "module-qvdd";
 			regulator-min-microvolt = <1450000>;
 			regulator-max-microvolt = <1450000>;
 			regulator-boot-on;
 			regulator-always-on;
 		};
 
-		reg_ldo1: regulator@2 {
+		reg_tps65053_vldo1: tps65053-1v5 {
 			compatible = "regulator-fixed";
-			regulator-name = "1v5";
+			regulator-name = "module-1v5";
 			regulator-min-microvolt = <1500000>;
 			regulator-max-microvolt = <1500000>;
 			regulator-boot-on;
 			regulator-always-on;
 		};
 
-		reg_ldo2: regulator@3 {
+		reg_tps65053_vldo2: tps65053-fec-3v3 {
 			compatible = "regulator-fixed";
-			reg = <0>;
-			regulator-name = "fec-phy";
+			regulator-name = "module-fec-phy";
 			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			gpio = <&gpio4 9 0>;
 		};
 
-		reg_ldo3: regulator@4 {
+		reg_tps65053_vldo3: tps65053-vbackup {
 			compatible = "regulator-fixed";
-			regulator-name = "vdd-batt";
+			regulator-name = "module-vbackup-1v3";
 			regulator-min-microvolt = <1300000>;
 			regulator-max-microvolt = <1300000>;
 			regulator-boot-on;
 			regulator-always-on;
 		};
 
-		reg_usb_host_vbus: regulator@5 {
+		reg_lp2980_3v3: lp2980-vdda {
 			compatible = "regulator-fixed";
-			regulator-name = "usb-host-vbus";
-			regulator-min-microvolt = <5000000>;
-			regulator-max-microvolt = <5000000>;
-			gpio = <&gpio4 11 0>;
+			regulator-name = "bb-vdda-3v3";
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+			regulator-boot-on;
+			regulator-always-on;
 		};
 
-		reg_usb_otg_vbus: regulator@6 {
+		reg_usb_h1_en: usb-h1-en {
 			compatible = "regulator-fixed";
-			regulator-name = "usb-otg-vbus";
+			regulator-name = "bb-usbh1-en";
 			regulator-min-microvolt = <5000000>;
 			regulator-max-microvolt = <5000000>;
-			gpio = <&gpio1 0 0>;
+			gpio = <&gpio4 11 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+		};
+
+		reg_usb_otg_en: usb_otg-en {
+			compatible = "regulator-fixed";
+			regulator-name = "bb-usbotg-en";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			gpio = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
 		};
 	};
+
+	sound {		
+		compatible = "fsl,imx25-vmx25-sgtl5000",
+			     "fsl,imx-audio-sgtl5000";
+		model = "imx25-vmx25-sgtl5000";
+		ssi-controller = <&ssi1>;
+		audio-codec = <&codec>;
+		audio-routing =
+			"MIC_IN", "Mic Jack",
+			"Mic Jack", "Mic Bias",
+			"Headphone Jack", "HP_OUT";
+		mux-int-port = <1>;
+		mux-ext-port = <4>;
+	};
+};
+
+&audmux {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_audmux>;
+	status = "okay";
+};
+
+&can2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_can2>;
+	status = "okay";
+};
+
+&esdhc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_esdhc1>;
+/*
+	cd-gpios = <&gpio4 4 GPIO_ACTIVE_LOW>;
+*/
+	status = "okay";
 };
 
 &fec {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_fec>;
-	phy-reset-gpios = <&gpio4 7 0>;
+//	phy-reset-gpios = <&gpio4 7 GPIO_ACTIVE_LOW>;
 	phy-mode = "rmii";
-	phy-supply = <&reg_ldo2>;
+//	phy-supply = <&reg_tps65053_vldo2>;
 	status = "okay";
-};
+/*
+	phy-handle = <&ethphy>;
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-&iim {
-	barebox,provide-mac-address = <&fec 0 26>;
+		ethphy: ethernet-phy@31 {
+			compatible = "smsc,lan8700", "ethernet-phy-ieee802.3-c22";
+			reg = <31>;
+			max-speed = <100>;
+		};
+	};
+*/
 };
 
 &iomuxc {
+	pinctrl_audmux: audmuxgrp {
+		fsl,pins = <
+			MX25_PAD_RW__AUD4_TXFS		0xE0
+			MX25_PAD_OE__AUD4_TXC		0xE0
+			MX25_PAD_EB0__AUD4_TXD		0xE0
+			MX25_PAD_EB1__AUD4_RXD		0xE0
+		>;
+	};
+
+	pinctrl_can2: can2grp {
+		fsl,pins = <
+			MX25_PAD_GPIO_C__CAN2_TX	0x0
+			MX25_PAD_GPIO_D__CAN2_RX	0x0
+		>;
+	};
+
+	pinctrl_esdhc1: esdhc1grp {
+		fsl,pins = <
+			MX25_PAD_SD1_CMD__SD1_CMD	0x00D5
+			MX25_PAD_SD1_CLK__SD1_CLK	0x00D5
+			MX25_PAD_SD1_DATA0__SD1_DATA0	0x00D5
+			MX25_PAD_SD1_DATA1__SD1_DATA1	0x00D5
+			MX25_PAD_SD1_DATA2__SD1_DATA2	0x00D5
+			MX25_PAD_SD1_DATA3__SD1_DATA3	0x00D5
+			MX25_PAD_BCLK__GPIO_4_4		0x80000000 /* card detect GPIO */
+			MX25_PAD_D10__GPIO_4_10		0x80000000 /* SD CLK switch GPIO */
+		>;
+	};
+
 	pinctrl_fec: fecgrp {
 		fsl,pins = <
-			MX25_PAD_D11__GPIO_4_9		0xD0 /* FEC PHY power on pin */
+			MX25_PAD_D11__GPIO_4_9		0xF0 /* FEC PHY power on pin */
+			MX25_PAD_D12__GPIO_4_8		0xD0 /* FEC INT */
 			MX25_PAD_D13__GPIO_4_7		0xD0 /* FEC reset */
 			MX25_PAD_FEC_MDC__FEC_MDC	0x80000000
 			MX25_PAD_FEC_MDIO__FEC_MDIO	0x80000000
@@ -150,6 +275,47 @@
 		fsl,pins = <
 			MX25_PAD_I2C1_CLK__I2C1_CLK	0x80000000
 			MX25_PAD_I2C1_DAT__I2C1_DAT	0x80000000
+		>;
+	};
+
+	pinctrl_kpp: kppgrp {
+		fsl,pins = <
+			MX25_PAD_KPP_ROW0__KPP_ROW0	0x80000000
+			MX25_PAD_KPP_ROW1__KPP_ROW1	0x80000000
+			MX25_PAD_KPP_ROW2__KPP_ROW2	0x80000000
+			MX25_PAD_KPP_ROW3__KPP_ROW3	0x80000000
+			MX25_PAD_KPP_COL0__KPP_COL0	0x80000000
+			MX25_PAD_KPP_COL1__KPP_COL1	0x80000000
+			MX25_PAD_KPP_COL2__KPP_COL2	0x80000000
+			MX25_PAD_KPP_COL3__KPP_COL3	0x80000000
+		>;
+	};
+
+	pinctrl_lcd: lcdgrp {
+		fsl,pins = <
+			MX25_PAD_LD0__LD0		0xe0
+			MX25_PAD_LD1__LD1		0xe0
+			MX25_PAD_LD2__LD2		0xe0
+			MX25_PAD_LD3__LD3		0xe0
+			MX25_PAD_LD4__LD4		0xe0
+			MX25_PAD_LD5__LD5		0xe0
+			MX25_PAD_LD6__LD6		0xe0
+			MX25_PAD_LD7__LD7		0xe0
+			MX25_PAD_LD8__LD8		0xe0
+			MX25_PAD_LD9__LD9		0xe0
+			MX25_PAD_LD10__LD10		0xe0
+			MX25_PAD_LD11__LD11		0xe0
+			MX25_PAD_LD12__LD12		0xe0
+			MX25_PAD_LD13__LD13		0xe0
+			MX25_PAD_LD14__LD14		0xe0
+			MX25_PAD_LD15__LD15		0xe0
+			MX25_PAD_D15__LD16		0xe0
+			MX25_PAD_D14__LD17		0xe0
+			MX25_PAD_HSYNC__HSYNC		0xe0
+			MX25_PAD_VSYNC__VSYNC		0xe0
+			MX25_PAD_LSCLK__LSCLK		0xe0
+			MX25_PAD_OE_ACD__OE_ACD		0xe0
+			MX25_PAD_CONTRAST__CONTRAST	0xe0
 		>;
 	};
 
@@ -180,76 +346,210 @@
 		>;
 	};
 
+	pinctrl_spi1: spi1grp {
+		fsl,pins = <
+			MX25_PAD_CSPI1_MISO__CSPI1_MISO	0x0
+			MX25_PAD_CSPI1_MOSI__CSPI1_MOSI	0x0
+			MX25_PAD_CSPI1_SCLK__CSPI1_SCLK	0x0
+			MX25_PAD_CSPI1_SS0__GPIO_1_16	0xe0 /* CS0 Module */
+			MX25_PAD_CSPI1_SS1__GPIO_1_17	0xe0 /* CS1 Baseboard */
+		>;
+	};
+
+	pinctrl_spi1_can: spi1cangrp {
+		fsl,pins = <
+			MX25_PAD_A24__GPIO_2_10	0xe0 /* CS */
+			MX25_PAD_A20__GPIO_2_6	0xe0 /* IRQ */
+		>;
+	};
+
+	pinctrl_spi1_touch: spi1touchgrp {
+		fsl,pins = <
+			MX25_PAD_A25__GPIO_2_11	0xe0 /* CS */
+			MX25_PAD_A21__GPIO_2_7	0xe0 /* IRQ */
+		>;
+	};
+
 	pinctrl_uart1: uart1grp {
 		fsl,pins = <
-			MX25_PAD_UART1_TXD__UART1_TXD 0x80000000
-			MX25_PAD_UART1_RXD__UART1_RXD 0x80000000
-			MX25_PAD_UART1_CTS__UART1_CTS 0x80000000
-			MX25_PAD_UART1_RTS__UART1_RTS 0x80000000
+			MX25_PAD_UART1_TXD__UART1_TXD	0x80000000
+			MX25_PAD_UART1_RXD__UART1_RXD	0x80000000
+			MX25_PAD_UART1_CTS__UART1_CTS	0x80000000
+			MX25_PAD_UART1_RTS__UART1_RTS	0x80000000
 		>;
 	};
 
 	pinctrl_uart2: uart2grp {
 		fsl,pins = <
-			MX25_PAD_UART2_TXD__UART2_TXD 0x80000000
-			MX25_PAD_UART2_RXD__UART2_RXD 0x80000000
-			MX25_PAD_UART2_CTS__UART2_CTS 0x80000000
-			MX25_PAD_UART2_RTS__UART2_RTS 0x80000000
+			MX25_PAD_UART2_TXD__UART2_TXD	0x80000000
+			MX25_PAD_UART2_RXD__UART2_RXD	0x80000000
+			MX25_PAD_UART2_CTS__UART2_CTS	0x80000000
+			MX25_PAD_UART2_RTS__UART2_RTS	0x80000000
 		>;
 	};
 
-	pinctrl_usb_otg: usbotggrp {
+	pinctrl_uart5: uart5grp {
 		fsl,pins = <
-//			MX25_PAD_GPIO_A__USBOTG_PWR	0x80000000
-//			MX25_PAD_GPIO_B__USBOTG_OC	0x80000000
-			MX25_PAD_GPIO_A__GPIO_A		0xD0
-			MX25_PAD_GPIO_B__GPIO_B		0XD0
+			MX25_PAD_ECB__UART5_TXD		0x80000000
+			MX25_PAD_LBA__UART5_RXD		0x80000000
+			MX25_PAD_CS4__UART5_CTS		0x80000000
+			MX25_PAD_CS5__UART5_RTS		0x80000000
 		>;
 	};
 
-	pinctrl_usb_host: usbhostgrp {
+	pinctrl_usbh1: usbh1grp {
 		fsl,pins = <
-//			MX25_PAD_D9__USBH2_PWR		0x80000000
-//			MX25_PAD_D8__USBH2_OC		0x80000000
-			MX25_PAD_D9__GPIO_4_11		0xD0
-			MX25_PAD_D8__GPIO_4_12		0xD0
+			MX25_PAD_D9__GPIO_4_11		0xe0
 		>;
 	};
+
+	pinctrl_usbotg: usbotggrp {
+		fsl,pins = <
+			MX25_PAD_GPIO_A__GPIO_A		0xe0
+		>;
+	};
+};
+
+&i2c1 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c1>;
+	status = "okay";
+
+	codec: sgtl5000@0a {
+		compatible = "fsl,sgtl5000";
+		reg = <0x0a>;
+		clocks = <&clk_12288k>;
+		VDDA-supply = <&reg_lp2980_3v3>;
+		VDDIO-supply = <&reg_tps65053_l1>;
+	};
+
+        eeprom_i2c_mod: at24c512@56 {
+                compatible = "at,24c512";
+                pagesize = <32>;
+                reg = <0x56>;
+        };
+
+        eeprom_i2c_bb: at24c512@57 {
+                compatible = "at,24c512";
+                pagesize = <128>;
+                reg = <0x57>;
+        };
+};
+
+&kpp {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_kpp>;
+	linux,keymap = <
+			MATRIX_KEY(0x0, 0x1, KEY_HOME)
+			MATRIX_KEY(0x0, 0x3, KEY_BACK)
+			MATRIX_KEY(0x2, 0x1, KEY_VOLUMEDOWN)
+			MATRIX_KEY(0x2, 0x3, KEY_VOLUMEUP)
+	>;
+	status = "okay";
+};
+
+&lcdc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_lcd>;
+	display = <&display>;
+	lcd-supply = <&reg_dummy>;
+	status = "okay";
 };
 
 &nfc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_nfc>;
-	#address-cells = <1>;
-	#size-cells = <1>;
 	nand-on-flash-bbt;
 	nand-ecc-mode = "hw";
 	nand-bus-width = <8>;
 	status = "okay";
+/*
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
 
-	partition@0 {
-		label = "bootloader";
-		reg = <0x0 0x80000>;
+		partition@0 {
+			label = "barebox";
+			reg = <0x0 0x80000>;
+		};
+
+		partition@80000 {
+			label = "environment";
+			reg = <0x80000 0x80000>;
+		};
+
+		partition@100000 {
+			label = "kernel";
+			reg = <0x100000 0x400000>;
+		};
+
+		partition@500000 {
+			label = "rootfs";
+			reg = <0x500000 0xf800000>;
+
+	};
+*/
+};
+
+&spi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi1>;
+	cs-gpios = <&gpio1 16 GPIO_ACTIVE_LOW>,
+		   <&gpio1 17 GPIO_ACTIVE_LOW>,
+		   <&gpio2 10 GPIO_ACTIVE_LOW>,
+		   <&gpio2 11 GPIO_ACTIVE_LOW>;
+	status = "okay";
+
+	flash_spi_mod: m25p80@0 {
+		compatible = "m25p80", "jedec,spi-nor";
+		spi-max-frequency = <40000000>;
+		reg = <0>;
 	};
 
-	partition@80000 {
-		label = "environment";
-		reg = <0x80000 0x80000>;
+	flash_spi_bb: m25p80@1 {
+		compatible = "m25p80", "jedec,spi-nor";
+		spi-max-frequency = <40000000>;
+		reg = <1>;
 	};
 
-	partition@100000 {
-		label = "kernel";
-		reg = <0x100000 0x400000>;
+	can_spi_bb: can {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_spi1_can>;
+		compatible = "microchip,mcp2515";
+		reg = <2>;
+		clocks = <&clk_16M>;
+		spi-max-frequency = <10000000>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
 	};
 
-	partition@500000 {
-		label = "rootfs";
-		/*
-		 * Size 0x0 extends partition to end of nand flash.
-		 */
-//		reg = <0x500000 0x7b00000>;
-		reg = <0x500000 0>;
+	touch_spi_bb: touch {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_spi1_touch>;
+		compatible = "ti,ads7846";
+		reg = <3>;
+		spi-cpol;
+		spi-max-frequency = <1500000>;
+		interrupt-parent = <&gpio2>;
+		interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
+		pendown-gpio = <&gpio2 7 0>;
+
+		ti,x-min = /bits/ 16 <0>;
+		ti,x-max = /bits/ 16 <8000>;
+		ti,y-min = /bits/ 16 <0>;
+		ti,y-max = /bits/ 16 <4800>;
+		ti,x-plate-ohms = /bits/ 16 <300>;
+		ti,y-plate-ohms = /bits/ 16 <600>;
+		ti,pressure-max = /bits/ 16 <255>;
 	};
+};
+
+&ssi1 {
+	codec-handle = <&codec>;
+	fsl,mode = "i2s-slave";
+	status = "okay";
 };
 
 &uart1 {
@@ -264,19 +564,21 @@
 	status = "okay";
 };
 
+&uart5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart5>;
+	status = "okay";
+};
+
 &usbhost1 {
 	phy_type = "serial";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb_host>;
-	vbus-supply = <&reg_usb_host_vbus>;
+	dr_mode = "host";
+	vbus-supply = <&reg_usb_h1_en>;
 	status = "okay";
 };
 
 &usbotg {
-	phy_type = "utmi";
-	dr_mode = "peripheral";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb_otg>;
-	vbus-supply = <&reg_usb_otg_vbus>;
+	/*external-vbus-divider;*/
+	vbus-supply = <&reg_usb_otg_en>;
 	status = "okay";
 };
