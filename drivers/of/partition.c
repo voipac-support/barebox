@@ -133,9 +133,6 @@ static int of_partition_fixup(struct device_node *root, void *ctx)
 	int ret;
 	int n_cells, n_parts = 0;
 
-	// Fixme cdev->device_node->full_name is corrupted
-	return -EINVAL;
-
 	if (of_partition_binding == MTD_OF_BINDING_DONTTOUCH)
 		return 0;
 
