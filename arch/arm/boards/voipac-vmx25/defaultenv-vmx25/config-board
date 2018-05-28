@@ -9,9 +9,11 @@ global vmx.kernelno
 global vmx.kernel
 global vmx.dtb
 
+# BASIC=254, PRO=264, MAX=265
 global.vmx.model=254
 #global.vmx.model=264
 #global.vmx.model=265
+
 global.vmx.dtb=imx25-voipac-vmx25-${global.vmx.model}.dtb
 
 global.hostname=vmx25
