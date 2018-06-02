@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# board defaults, do not change in running system. Change /env/config
-# instead
+# board defaults
 
 global vmx
 global vmx.model
@@ -9,8 +8,9 @@ global vmx.kernelno
 global vmx.kernel
 global vmx.dtb
 
-# BASIC=254, PRO=264, MAX=265
+# BASIC=254, PRO=264, MAX=265, CUSTOM=255
 global.vmx.model=254
+#global.vmx.model=255
 #global.vmx.model=264
 #global.vmx.model=265
 
