@@ -90,8 +90,8 @@ static int mtd_part_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	return res;
 }
 
-struct mtd_info *mtd_add_partition(struct mtd_info *mtd, off_t offset, size_t size,
-		unsigned long flags, const char *name)
+struct mtd_info *mtd_add_partition(struct mtd_info *mtd, off_t offset,
+		uint64_t size, unsigned long flags, const char *name)
 {
 	struct mtd_part *slave;
 	struct mtd_info *slave_mtd;

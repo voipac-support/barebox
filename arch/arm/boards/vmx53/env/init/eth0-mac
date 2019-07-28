@@ -1,0 +1,15 @@
+#!/bin/sh
+
+#interface=eth0
+#
+#. /env/network/${interface}
+
+#if [ -z $ethaddr ]; then
+#	while [ -z $ethaddr ]; do
+#		readline "No MAC address set for eth0. Please enter the one found on your module: " ethaddr
+#	done
+#	echo -a /env/network/${interface} "ethaddr=$ethaddr"
+#	saveenv
+#fi
+
+#${interface}.ethaddr=$ethaddr

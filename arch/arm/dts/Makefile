@@ -10,7 +10,8 @@ dtb-$(CONFIG_ARCH_IMX51) += imx51-babbage.dtb \
 dtb-$(CONFIG_ARCH_IMX53) += imx53-mba53.dtb \
 	imx53-qsb.dtb \
 	imx53-qsrb.dtb \
-	imx53-voipac-bsb.dtb
+	imx53-voipac-bsb.dtb \
+	imx53-vmx53.dtb
 dtb-$(CONFIG_ARCH_IMX6) += imx6q-gk802.dtb \
 	imx6dl-dfi-fs700-m60-6s.dtb \
 	imx6q-dfi-fs700-m60-6q.dtb \
@@ -50,6 +51,7 @@ pbl-$(CONFIG_MACH_TOSHIBA_AC100) += tegra20-paz00.dtb.o
 pbl-$(CONFIG_MACH_TQMA53) += imx53-mba53.dtb.o
 pbl-$(CONFIG_MACH_TQMA6X) += imx6dl-mba6x.dtb.o imx6q-mba6x.dtb.o
 pbl-$(CONFIG_MACH_TX25) += imx25-karo-tx25.dtb.o
+pbl-$(CONFIG_MACH_VMX53) += imx53-vmx53.dtb.o
 pbl-$(CONFIG_MACH_SOCFPGA_EBV_SOCRATES) += socfpga_cyclone5_socrates.dtb.o
 pbl-$(CONFIG_MACH_SOCFPGA_TERASIC_SOCKIT) += socfpga_cyclone5_sockit.dtb.o
 pbl-$(CONFIG_MACH_SOLIDRUN_HUMMINGBOARD) += imx6dl-hummingboard.dtb.o

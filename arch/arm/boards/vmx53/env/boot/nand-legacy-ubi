@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = menu ]; then
+	boot-menu-add-entry "$0" "nand legacy (UBI)"
+	exit
+fi
+
+oftree -f
+global.bootm.image="/dev/nand0.kernel.bb"
+global.linux.bootargs.dyn.root="root=ubi0:rootfs ubi.mtd=nand0.rootfs rootfstype=ubifs"

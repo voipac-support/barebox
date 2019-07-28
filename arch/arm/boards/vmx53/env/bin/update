@@ -1,0 +1,67 @@
+#!/bin/sh
+
+updatedir=vmx53
+barebox=$updatedir/barebox.img
+zimage=$updatedir/zImage
+rootfs=$updatedir/rootfs.bin
+
+. /env/config
+
+if [ x$1 = xbarebox ]; then
+	image=$barebox
+	part=/dev/nand0.barebox.bb
+fi
+
+if [ x$1 = xkernel ]; then
+	image=$zimage
+	part=/dev/nand0.kernel.bb
+fi
+
+if [ x$1 = xrootfs ]; then
+	image=$rootfs
+	part=/dev/nand0.rootfs
+fi
+
+if [ -z "$part" -o -z "$image" ]; then
+	echo "update barebox|kernel|rootfs [<imagename>]"
+	exit 1
+fi
+
+if [ ! -e "$part" ]; then
+	echo "Partition $part does not exist"
+	exit 1
+fi
+
+if [ $# = 2 ]; then
+	image=$2
+fi
+
+if [ -f /env/network/eth0 ]; then
+	ifup eth0
+fi
+
+ping $eth0.serverip
+if [ $? -ne 0 ] ; then
+	echo "Update aborted"
+	exit 1
+fi
+
+unprotect $part
+
+echo
+echo "Erasing partition $part"
+erase $part
+
+if [ x$1 = xrootfs ]; then
+	echo
+	echo "Attaching UBI to $part"
+	ubiattach $part
+	ubimkvol /dev/ubi0 rootfs 0
+
+	part=/dev/ubi0.rootfs
+fi
+
+echo
+echo "Flashing $image to $part"
+echo
+tftp $image $part

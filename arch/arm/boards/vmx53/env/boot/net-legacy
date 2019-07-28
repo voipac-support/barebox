@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "$1" = menu ]; then
+        boot-menu-add-entry "$0" "network legacy (tftp, nfs)"
+        exit
+fi
+
+#Settings
+kernel=zImage-3.12.13_vmx53_dev
+
+dhcp
+eth0.serverip=192.168.0.1
+
+tftp vmx53/${kernel}
+global.bootm.image=${kernel}
+
+oftree -f
+nfsroot="${eth0.serverip}:/srv/nfs/rootfs-bb-1-22-vmx53,nolock"
+
+bootargs-ip
+global.linux.bootargs.dyn.root="root=/dev/nfs nfsroot=$nfsroot,v3,tcp"

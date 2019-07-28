@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ "$1" = menu ]; then
+	init-menu-add-entry "$0" "NAND partitions"
+	exit
+fi
+
+mtdnames="barebox environment kernel rootfs"
+mtdparts="1M(nand0.barebox),1M(nand0.environment),4M(nand0.kernel),-(nand0.rootfs)"
+
+for partition in ${mtdnames}
+do
+	if [ -e /dev/nand0.${partition}.bb ]; then
+		nand -d /dev/nand0.${partition}.bb
+	fi
+
+	if [ -e /dev/nand0.${partition} ]; then
+		delpart /dev/nand0.${partition}
+	fi
+done
+
+addpart -n /dev/nand0 "${mtdparts}"
+
+for partition in ${mtdnames}
+do
+	if [ ! -e /dev/nand0.${partition}.bb ]; then
+		nand -a /dev/nand0.${partition}
+	fi
+done
+
+global linux.mtdparts.nand0
+global.linux.mtdparts.nand0="mxc_nand:${mtdparts}"
+

@@ -51,8 +51,22 @@
  * From this point on we can forget about the BBMs and rely completely
  * on the flash BBT.
  *
+ * 4096 byte data + 218(224) OOB, but instead:
+ *
+ * 512b data + 26b OOB +
+ * 512b data + 26b OOB +
+ * 512b data + 26b OOB +
+ * 512b data + 26b OOB +
+ * 512b data + 26b OOB +
+ * 512b data + 26b OOB +
+ * 512b data + 26b OOB +
+ * 512b data + 36b OOB
+ *
+ * This means that the factory provided bad block marker ends up
+ * in the page data at offset 3914 instead of in the OOB data.
+ *
  */
-static int checkbad(struct mtd_info *mtd, loff_t ofs, void *__buf)
+static int checkbad(struct mtd_info *mtd, loff_t ofs, void *__buf, uint32_t bbtbyteoffset)
 {
 	int ret, retlen;
 	uint8_t *buf = __buf;
@@ -61,13 +75,14 @@ static int checkbad(struct mtd_info *mtd, loff_t ofs, void *__buf)
 	if (ret < 0)
 		return ret;
 
-	if (buf[2000] != 0xff)
+	if (buf[bbtbyteoffset] != 0xff) {
 		return 1;
+	}
 
 	return 0;
 }
 
-static void *create_bbt(struct mtd_info *mtd)
+static void *create_bbt(struct mtd_info *mtd, uint32_t bbtbyteoffset)
 {
 	struct nand_chip *chip = mtd->priv;
 	int len, i, numblocks, ret;
@@ -97,9 +112,9 @@ static void *create_bbt(struct mtd_info *mtd)
 	numblocks = mtd->size >> (chip->bbt_erase_shift - 1);
 
 	for (i = 0; i < numblocks;) {
-		ret = checkbad(mtd, from, buf);
-		if (ret < 0)
-			goto out1;
+		ret = checkbad(mtd, from, buf, bbtbyteoffset);
+//		if (ret < 0)
+//			goto out1;
 
 		if (ret) {
 			bbt[i >> 3] |= 0x03 << (i & 0x6);
@@ -113,8 +128,8 @@ static void *create_bbt(struct mtd_info *mtd)
 
 	return bbt;
 
-out1:
-	free(buf);
+//out1:
+//	free(buf);
 out2:
 	free(bbt);
 
@@ -140,6 +155,7 @@ static int do_imx_nand_bbm(int argc, char *argv[])
 	struct mtd_info *mtd;
 	int yes = 0;
 	void *bbt;
+	uint32_t bbtbyteoffset;
 
 	while ((opt = getopt(argc, argv, "y")) > 0) {
 		switch (opt) {
@@ -171,6 +187,10 @@ static int do_imx_nand_bbm(int argc, char *argv[])
 		ret = 1;
 		goto out;
 	case 2048:
+		bbtbyteoffset = 2000; 
+		break;
+	case 4096:
+		bbtbyteoffset = 3914;
 		break;
 	default:
 		printf("not implemented for writesize %d\n", mtd->writesize);
@@ -178,7 +198,7 @@ static int do_imx_nand_bbm(int argc, char *argv[])
 		goto out;
 	}
 
-	bbt = create_bbt(mtd);
+	bbt = create_bbt(mtd, bbtbyteoffset);
 	if (IS_ERR(bbt)) {
 		ret = 1;
 		goto out;

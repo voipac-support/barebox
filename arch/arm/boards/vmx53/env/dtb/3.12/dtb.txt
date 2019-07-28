@@ -1,0 +1,20 @@
+# Device Tree Blob (.dtb) files can be placed into this directory
+#
+# The file name and path is affected by two global env variables. 
+# global.vmxmodel
+# global.vmxkernel
+
+# Example:
+# 1. Configuration
+barebox@Voipac VMX53:/ cat /env/config
+#!/bin/sh
+...
+
+global.vmxmodel=557
+global.vmxkernel=3.12
+
+...
+
+# 2. DTB File name and location
+/env/dtb/3.12/imx53-vmx53-557.dtb
+

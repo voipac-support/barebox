@@ -11,6 +11,7 @@ config ARCH_TEXT_BASE
 	default 0x83f00000 if MACH_FREESCALE_MX25_3STACK && FREESCALE_MX25_3STACK_SDRAM_64MB_DDR2
 	default 0x87f00000 if MACH_FREESCALE_MX25_3STACK && FREESCALE_MX25_3STACK_SDRAM_128MB_MDDR
 	default 0x87f00000 if MACH_FREESCALE_MX35_3STACK
+	default 0x7ff00000 if MACH_VMX53
 	default 0xa7f00000 if MACH_PCA100
 	default 0xa0000000 if MACH_PCM038
 	default 0x87f00000 if MACH_PCM037
@@ -445,6 +446,16 @@ config MACH_GUF_VINCELL
 	bool "Garz-Fricke Vincell"
 	select ARCH_IMX53
 	select HAVE_DEFAULT_ENVIRONMENT_NEW
+
+config MACH_VMX53
+	bool "Voipac VMX53"
+	select ARCH_IMX53
+	select HAVE_DEFAULT_ENVIRONMENT_NEW
+	select ARCH_IMX_INTERNAL_BOOT
+	select ARCH_IMX_INTERNAL_BOOT_NAND
+	help
+	  Say Y here if you are using the Voipac Technologies VMX53 module
+	  equipped with a Freescale i.MX53 Processor
 
 comment "i.MX6 Boards"
 

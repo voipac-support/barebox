@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# board defaults, do not change in running system. Change /env/config
+# instead
+
+global vmxmodel
+global vmxkernel
+
+global.vmxmodel=557
+global.vmxkernel=3.12
+global.hostname=vmx53
+global.linux.bootargs.base="console=ttymxc0,115200"
+global.boot.default=nand-dtb-ubi

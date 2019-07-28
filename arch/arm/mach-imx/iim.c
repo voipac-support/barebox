@@ -31,7 +31,7 @@
 
 #define DRIVERNAME	"imx_iim"
 
-static int iim_write_enable;
+static int iim_write_enable = 1;
 static int iim_sense_enable;
 
 struct iim_priv {

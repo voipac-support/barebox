@@ -1,0 +1,147 @@
+/*
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ * Copyright 2011 Linaro Ltd.
+ * Copyright 2014 Voipac <support@voipac.com>
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/dts-v1/;
+#include "imx53.dtsi"
+
+/ {
+	model = "Voipac VMX53";
+	compatible = "voipac,imx53-vmx53", "fsl,imx53";
+
+	chosen {
+		linux,stdout-path = &uart1;
+
+		environment@0 {
+			compatible = "barebox,environment";
+			device-path = &nfc, "partname:environment";
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_led>;
+
+		red {
+			label = "led-red";
+			gpios = <&gpio3 29 0>;
+			linux,default-trigger = "heartbeat";
+		};
+
+		orange {
+			label = "led-orange";
+			gpios = <&gpio2 31 0>;
+			linux,default-trigger = "panic";
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+
+	imx53-vmx53 {
+		pinctrl_hog: hoggrp {
+			fsl,pins = <
+				MX53_PAD_GPIO_17__GPIO7_12	0x80000000 // RESET_OUT
+				MX53_PAD_GPIO_10__GPIO4_0	0x80000000 // SD1_SEL
+				MX53_PAD_EIM_D24__GPIO3_24	0x80000000 // SD1_CD
+				MX53_PAD_EIM_D25__GPIO3_25	0x80000000 // SD2_CD
+				MX53_PAD_EIM_A19__GPIO2_19	0x80000000 // SD2_WP
+			>;
+		};
+	};
+
+	pinctrl_led: ledgrp {
+		fsl,pins = <
+			MX53_PAD_EIM_D29__GPIO3_29		0xC0
+			MX53_PAD_EIM_EB3__GPIO2_31		0xC0
+		>;
+	};
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1_2>;
+	status = "okay";
+};
+
+&iim {
+	barebox,provide-mac-address = <&fec 1 9>;
+};
+
+&fec {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_fec_1>;
+	phy-mode = "rmii";
+	status = "okay";
+};
+
+&nfc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_nand_1>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+	nand-on-flash-bbt;
+	nand-ecc-mode = "hw";
+	nand-bus-width = <8>;
+	status = "okay";
+
+	partition@0 {
+		label = "barebox";
+		reg = <0x0 0x100000>;
+	};
+
+	partition@1 {
+		label = "environment";
+		reg = <0x100000 0x100000>;
+	};
+
+	partition@2 {
+		label = "kernel";
+		reg = <0x200000 0x400000>;
+	};
+
+	partition@3 {
+		label = "rootfs";
+		reg = <0x600000 0x07B00000>;
+	};
+};
+
+&esdhc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_esdhc1_1>;
+	cd-gpios = <&gpio3 24 1>;
+	fsl,wp-controller;
+	status = "okay";
+};
+
+&esdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_esdhc2_1>;
+	cd-gpios = <&gpio3 25 1>;
+	fsl,wp-controller;
+	status = "okay";
+};
+
+&i2c1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c1_2>;
+	status = "okay";
+};
+
+&i2c3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c3_2>;
+	status = "okay";
+};

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Load correct dtb file
+
+if [ -e /env/config ]; then
+	/env/config
+fi
+
+#Settings
+dtb=imx53-vmx53-${global.vmxmodel}.dtb
+
+if [ -e /env/dtb/${global.vmxkernel}/${dtb} ]; then
+	oftree -f
+        oftree -l /env/dtb/${global.vmxkernel}/${dtb}
+	echo "DTB: ${dtb}"
+fi

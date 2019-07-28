@@ -462,12 +462,35 @@ void __naked __noreturn imx51_barebox_entry(uint32_t boarddata)
 	barebox_arm_entry(base, size, boarddata);
 }
 
+#define IMX_ESD_BASE    	0x63fd9000
+#define IMX_ESD_ESDCTL		(IMX_ESD_BASE)
+#define IMX_ESD_ESDCTL_ROW_MASK	(7ul<<24)
+#define IMX_ESD_ESDCTL_ROW15	(4ul<<24)
+#define IMX_ESD_ESDCTL_ROW14	(3ul<<24)
+#define IMX_ESD_ESDCTL_ROW13	(2ul<<24)
+
+static inline void imx53_autoset_ddr3_rows(unsigned long base)
+{
+	unsigned long esdctl;
+
+	writel(IMX_ESD_ESDCTL_ROW15, base);
+	writel(IMX_ESD_ESDCTL_ROW14, base + 0x20000000);
+	writel(IMX_ESD_ESDCTL_ROW13, base + 0x10000000);
+
+	esdctl = (readl(IMX_ESD_ESDCTL) & ~IMX_ESD_ESDCTL_ROW_MASK);
+	esdctl |= readl(base);
+
+	writel(esdctl, IMX_ESD_ESDCTL);
+}
+
 void __naked __noreturn imx53_barebox_entry(uint32_t boarddata)
 {
 	unsigned long base;
 	unsigned long size;
 
 	base = MX53_CSD0_BASE_ADDR;
+
+	imx53_autoset_ddr3_rows(base);
 
 	size = imx_v4_sdram_size((void *)MX53_ESDCTL_BASE_ADDR, 0);
 	if (size == SZ_1G)

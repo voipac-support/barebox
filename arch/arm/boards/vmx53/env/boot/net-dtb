@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ "$1" = menu ]; then
+        boot-menu-add-entry "$0" "network dtb (tftp, nfs)"
+        exit
+fi
+
+. /env/config
+
+#Settings
+dtb=imx53-vmx53-${global.vmxmodel}.dtb
+kernel=zImage-3.12.13_vmx53_dev
+
+dhcp
+eth0.serverip=192.168.0.1
+
+tftp vmx53/${kernel}
+tftp vmx53/${dtb}
+
+global.bootm.image=${kernel}
+if [ -e "${dtb}" ]; then
+	oftree -f
+        oftree -l "${dtb}"
+fi
+
+nfsroot="${eth0.serverip}:/srv/nfs/rootfs-bb-1-22-vmx53,nolock"
+
+bootargs-ip
+global.linux.bootargs.dyn.root="root=/dev/nfs nfsroot=$nfsroot,v3,tcp"
